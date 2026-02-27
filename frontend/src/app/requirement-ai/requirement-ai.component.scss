@@ -1,0 +1,137 @@
+// Comprehensive Analysis Component Styles
+
+.chip {
+  @apply bg-slate-700 hover:bg-slate-600 px-4 py-2 rounded-xl text-sm transition;
+}
+
+.download-btn {
+  @apply text-white px-5 py-2 rounded-xl font-semibold transition shadow-lg;
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+  }
+  
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+// Collapsible section hover effect
+.hover\\:bg-slate-750 {
+  &:hover {
+    background-color: rgb(30, 41, 59);
+  }
+}
+
+// Analysis sections styling
+.bg-slate-800 {
+  transition: all 0.3s ease;
+}
+
+// Priority badges
+.priority-badge {
+  @apply px-2 py-1 rounded text-xs font-semibold;
+  
+  &.high {
+    @apply bg-red-500/20 text-red-300;
+  }
+  
+  &.medium {
+    @apply bg-yellow-500/20 text-yellow-300;
+  }
+  
+  &.low {
+    @apply bg-green-500/20 text-green-300;
+  }
+}
+
+// Test coverage metrics
+.coverage-metric {
+  @apply text-center p-3 rounded-lg bg-slate-900;
+  
+  .metric-value {
+    @apply text-2xl font-bold;
+  }
+  
+  .metric-label {
+    @apply text-xs text-slate-400 mt-1;
+  }
+}
+
+// Edge case risk levels
+.risk-indicator {
+  &.high {
+    @apply text-red-400 font-semibold;
+  }
+  
+  &.medium {
+    @apply text-yellow-400 font-semibold;
+  }
+  
+  &.low {
+    @apply text-green-400;
+  }
+}
+
+// Section expansion animation
+.section-content {
+  animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Scrollbar styling
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgb(15, 23, 42);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgb(51, 65, 85);
+  border-radius: 4px;
+  
+  &:hover {
+    background: rgb(71, 85, 105);
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .download-btn {
+    @apply px-3 py-2 text-sm;
+  }
+  
+  .coverage-metric {
+    .metric-value {
+      @apply text-xl;
+    }
+  }
+}
+
+// Print styles for reports
+@media print {
+  .download-btn,
+  .sticky {
+    display: none !important;
+  }
+  
+  .bg-slate-800,
+  .bg-slate-900 {
+    border: 1px solid #ccc;
+    page-break-inside: avoid;
+  }
+}

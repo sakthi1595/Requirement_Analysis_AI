@@ -1,0 +1,23 @@
+﻿#  Generated Reports 
+*.docx
+*.pdf
+Hackathon_RequirementAI_Report.html
+generate_report.py
+
+#  OS 
+.DS_Store
+Thumbs.db
+desktop.ini
+
+#  IDE / Editor 
+.vscode/
+.idea/
+
+#  Archives & Workspace files 
+*.zip
+*.xlsx
+*.xls
+*.code-workspace
+
+#  Misc assets 
+Requirement_Analysis_AI/

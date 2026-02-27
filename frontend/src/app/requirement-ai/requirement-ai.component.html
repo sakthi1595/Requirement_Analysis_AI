@@ -1,0 +1,657 @@
+<div class="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white p-6">
+
+    <div class="max-w-7xl mx-auto space-y-6">
+  
+      <!-- Header -->
+      <div class="flex items-center gap-3">
+        <div class="text-3xl">🤖</div>
+        <div>
+          <h1 class="text-3xl font-bold">Requirements Analysis AI</h1>
+          <p class="text-slate-400 text-sm">
+            Transform unstructured requirements into comprehensive, production-ready analysis reports
+          </p>
+        </div>
+      </div>
+  
+      <!-- Input Card -->
+      <div class="bg-slate-800 border border-slate-700 rounded-2xl p-5 shadow-xl">
+  
+        <textarea
+          [(ngModel)]="userInput"
+          rows="4"
+          placeholder="Describe your requirement in plain English..."
+          class="w-full bg-slate-900 border border-slate-600 rounded-xl p-4 text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </textarea>
+
+        <!-- Image Upload -->
+        <div class="mt-3 flex items-center gap-3">
+          <label class="flex items-center gap-2 cursor-pointer bg-slate-700 hover:bg-slate-600 px-4 py-2 rounded-lg transition">
+            <span>🖼️ Add Image</span>
+            <input type="file"
+                   (change)="onImageSelected($event)"
+                   accept="image/*"
+                   class="hidden" />
+          </label>
+          
+          <div *ngIf="selectedImageBase64" class="text-sm text-slate-300">
+            ✓ Image attached
+            <button (click)="clearImage()" class="ml-2 text-red-400 hover:text-red-300">
+              ✕
+            </button>
+          </div>
+        </div>
+
+        <!-- Image Preview -->
+        <div *ngIf="selectedImagePreview" class="mt-3 max-w-xs">
+          <img [src]="selectedImagePreview" alt="Preview" class="rounded-lg border border-slate-600 max-h-32 object-cover" />
+        </div>
+  
+        <div class="flex justify-between items-center mt-4">
+          <button
+            (click)="generate()"
+            class="bg-blue-600 hover:bg-blue-700 px-6 py-2 rounded-xl font-semibold transition">
+            🚀 Generate Analysis Report
+          </button>
+  
+          <div *ngIf="loading" class="text-blue-400 animate-pulse">
+            🧠 Analyzing requirement across 8 phases... generating comprehensive report...
+          </div>
+        </div>
+      </div>
+  
+      <!-- Empty state -->
+      <div *ngIf="!analysis" class="text-center text-slate-500 py-16">
+        ✨ Your comprehensive requirement analysis report will appear here
+      </div>
+  
+      <!-- REQUIREMENT SUMMARY & QUALITY SCORES -->
+      <div *ngIf="analysis" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+  
+        <!-- User Input -->
+        <div class="bg-slate-800 border border-slate-700 rounded-2xl p-5">
+          <h2 class="text-lg font-semibold mb-3 text-orange-400">📝 Original Requirement</h2>
+          
+          <!-- Image Display -->
+          <div *ngIf="selectedImagePreview" class="mb-3">
+            <img [src]="selectedImagePreview" alt="Reference" class="rounded-lg border border-slate-600 max-h-48 object-cover w-full" />
+          </div>
+          
+          <p class="text-slate-300 whitespace-pre-line">{{ userInput }}</p>
+  
+          <div *ngIf="qualityBefore !== null"
+               class="mt-4 inline-block bg-orange-500/20 text-orange-300 px-3 py-1 rounded-full text-sm">
+            Quality Before: {{ qualityBefore }}
+          </div>
+        </div>
+  
+        <!-- Requirement Summary -->
+        <div class="bg-slate-800 border border-slate-700 rounded-2xl p-5">
+          <h2 class="text-lg font-semibold mb-3 text-green-400">
+            ✨ Analysis Summary
+          </h2>
+  
+          <div class="space-y-2 text-sm" *ngIf="analysis.requirement_summary">
+            <div><b>Requirement ID:</b> {{ analysis.requirement_summary.requirement_id }}</div>
+            <div><b>Date:</b> {{ analysis.requirement_summary.date }}</div>
+            <div><b>Analyst:</b> {{ analysis.requirement_summary.analyst }}</div>
+          </div>
+  
+          <div *ngIf="qualityAfter !== null"
+               class="mt-4 inline-block bg-green-500/20 text-green-300 px-3 py-1 rounded-full text-sm">
+            Quality After: {{ qualityAfter }}
+          </div>
+
+          <div class="mt-4 pt-4 border-t border-slate-600">
+            <p class="text-xs text-slate-400">
+              📊 Comprehensive analysis completed with 8-phase evaluation including classification, edge cases, acceptance criteria, user stories, and test cases.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- PHASE 1: CLASSIFICATION -->
+      <div *ngIf="analysis && analysis.classification" class="bg-slate-800 border border-slate-700 rounded-2xl overflow-hidden">
+        <div class="p-5 cursor-pointer hover:bg-slate-750 transition" (click)="toggleSection('classification')">
+          <div class="flex justify-between items-center">
+            <h2 class="text-xl font-semibold text-blue-400">
+              📋 Phase 1: Classification & Context
+            </h2>
+            <span class="text-2xl">{{ expandedSections['classification'] ? '▼' : '▶' }}</span>
+          </div>
+        </div>
+        
+        <div *ngIf="expandedSections['classification']" class="p-5 pt-0 border-t border-slate-700 space-y-3">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <p class="text-sm text-slate-400">Requirement Type</p>
+              <p class="text-white font-medium">{{ analysis.classification.requirement_type }}</p>
+            </div>
+            <div>
+              <p class="text-sm text-slate-400">Target System</p>
+              <p class="text-white font-medium">{{ analysis.classification.target_system }}</p>
+            </div>
+            <div>
+              <p class="text-sm text-slate-400">Domain</p>
+              <p class="text-white font-medium">{{ analysis.classification.domain }}</p>
+            </div>
+            <div>
+              <p class="text-sm text-slate-400">Stakeholder</p>
+              <p class="text-white font-medium">{{ analysis.classification.stakeholder }}</p>
+            </div>
+            <div>
+              <p class="text-sm text-slate-400">Primary Category</p>
+              <p class="text-white font-medium">{{ analysis.classification.primary_category }}</p>
+            </div>
+            <div>
+              <p class="text-sm text-slate-400">Sub-Category</p>
+              <p class="text-white font-medium">{{ analysis.classification.sub_category }}</p>
+            </div>
+            <div class="md:col-span-2">
+              <p class="text-sm text-slate-400">Impact Scope</p>
+              <p class="text-white font-medium">{{ analysis.classification.impact_scope }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PHASE 2: DETAILED ANALYSIS -->
+      <div *ngIf="analysis && analysis.detailed_analysis" class="bg-slate-800 border border-slate-700 rounded-2xl overflow-hidden">
+        <div class="p-5 cursor-pointer hover:bg-slate-750 transition" (click)="toggleSection('detailedAnalysis')">
+          <div class="flex justify-between items-center">
+            <h2 class="text-xl font-semibold text-purple-400">
+              🔍 Phase 2: Detailed Analysis
+            </h2>
+            <span class="text-2xl">{{ expandedSections['detailedAnalysis'] ? '▼' : '▶' }}</span>
+          </div>
+        </div>
+        
+        <div *ngIf="expandedSections['detailedAnalysis']" class="p-5 pt-0 border-t border-slate-700 space-y-4">
+          <div *ngIf="(analysis.detailed_analysis?.software_requirements?.ui_ux_related?.length ?? 0) > 0">
+            <h3 class="font-semibold text-purple-300 mb-2">UI/UX Requirements</h3>
+            <ul class="list-disc ml-6 space-y-1 text-slate-300">
+              <li *ngFor="let req of analysis.detailed_analysis?.software_requirements?.ui_ux_related">{{ req }}</li>
+            </ul>
+          </div>
+          
+          <div *ngIf="(analysis.detailed_analysis?.software_requirements?.backend_logic?.length ?? 0) > 0">
+            <h3 class="font-semibold text-purple-300 mb-2">Backend/Logic Requirements</h3>
+            <ul class="list-disc ml-6 space-y-1 text-slate-300">
+              <li *ngFor="let req of analysis.detailed_analysis?.software_requirements?.backend_logic">{{ req }}</li>
+            </ul>
+          </div>
+          
+          <div *ngIf="(analysis.detailed_analysis?.hardware_requirements?.length ?? 0) > 0">
+            <h3 class="font-semibold text-purple-300 mb-2">Hardware Requirements</h3>
+            <ul class="list-disc ml-6 space-y-1 text-slate-300">
+              <li *ngFor="let req of analysis.detailed_analysis?.hardware_requirements">{{ req }}</li>
+            </ul>
+          </div>
+          
+          <div *ngIf="(analysis.detailed_analysis?.performance_requirements?.length ?? 0) > 0">
+            <h3 class="font-semibold text-purple-300 mb-2">Performance Requirements</h3>
+            <ul class="list-disc ml-6 space-y-1 text-slate-300">
+              <li *ngFor="let req of analysis.detailed_analysis?.performance_requirements">{{ req }}</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- PHASE 3: EDGE CASES -->
+      <div *ngIf="analysis && (analysis.edge_cases?.length ?? 0) > 0" class="bg-slate-800 border border-slate-700 rounded-2xl overflow-hidden">
+        <div class="p-5 cursor-pointer hover:bg-slate-750 transition" (click)="toggleSection('edgeCases')">
+          <div class="flex justify-between items-center">
+            <h2 class="text-xl font-semibold text-yellow-400">
+              ⚠️ Phase 3: Edge Cases & Exception Scenarios
+            </h2>
+            <span class="text-2xl">{{ expandedSections['edgeCases'] ? '▼' : '▶' }}</span>
+          </div>
+        </div>
+        
+        <div *ngIf="expandedSections['edgeCases']" class="p-5 pt-0 border-t border-slate-700 space-y-4">
+          <div *ngFor="let edge of analysis.edge_cases; let i = index" class="bg-slate-900 rounded-lg p-4">
+            <h3 class="font-semibold text-yellow-300 mb-2">Edge Case #{{ i + 1 }}</h3>
+            <div class="space-y-2 text-sm">
+              <div><span class="text-slate-400">Scenario:</span> <span class="text-slate-200">{{ edge.scenario }}</span></div>
+              <div><span class="text-slate-400">Trigger:</span> <span class="text-slate-200">{{ edge.trigger }}</span></div>
+              <div><span class="text-slate-400">Expected Behavior:</span> <span class="text-slate-200">{{ edge.expected_behavior }}</span></div>
+              <div>
+                <span class="text-slate-400">Risk Level:</span> 
+                <span [ngClass]="{
+                  'text-red-400 font-semibold': edge.risk_level?.toLowerCase() === 'high',
+                  'text-yellow-400 font-semibold': edge.risk_level?.toLowerCase() === 'medium',
+                  'text-green-400': edge.risk_level?.toLowerCase() === 'low'
+                }">{{ edge.risk_level }}</span>
+              </div>
+              <div><span class="text-slate-400">Mitigation:</span> <span class="text-slate-200">{{ edge.mitigation_strategy }}</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PHASE 4: CLARIFICATION QUESTIONS -->
+      <div *ngIf="analysis && analysis.clarification_questions" class="bg-slate-800 border border-slate-700 rounded-2xl overflow-hidden">
+        <div class="p-5 cursor-pointer hover:bg-slate-750 transition" (click)="toggleSection('clarificationQuestions')">
+          <div class="flex justify-between items-center">
+            <h2 class="text-xl font-semibold text-cyan-400">
+              ❓ Phase 4: Clarification Questions
+            </h2>
+            <span class="text-2xl">{{ expandedSections['clarificationQuestions'] ? '▼' : '▶' }}</span>
+          </div>
+        </div>
+        
+        <div *ngIf="expandedSections['clarificationQuestions']" class="p-5 pt-0 border-t border-slate-700 space-y-4">
+          <div *ngIf="(analysis.clarification_questions?.functional?.length ?? 0) > 0">
+            <h3 class="font-semibold text-cyan-300 mb-2">Functional Questions</h3>
+            <ul class="list-decimal ml-6 space-y-2 text-slate-300">
+              <li *ngFor="let q of analysis.clarification_questions?.functional">{{ q }}</li>
+            </ul>
+          </div>
+          
+          <div *ngIf="(analysis.clarification_questions?.technical?.length ?? 0) > 0">
+            <h3 class="font-semibold text-cyan-300 mb-2">Technical Questions</h3>
+            <ul class="list-decimal ml-6 space-y-2 text-slate-300">
+              <li *ngFor="let q of analysis.clarification_questions?.technical">{{ q }}</li>
+            </ul>
+          </div>
+          
+          <div *ngIf="(analysis.clarification_questions?.constraints?.length ?? 0) > 0">
+            <h3 class="font-semibold text-cyan-300 mb-2">Constraint Questions</h3>
+            <ul class="list-decimal ml-6 space-y-2 text-slate-300">
+              <li *ngFor="let q of analysis.clarification_questions?.constraints">{{ q }}</li>
+            </ul>
+          </div>
+          
+          <div *ngIf="(analysis.clarification_questions?.scope?.length ?? 0) > 0">
+            <h3 class="font-semibold text-cyan-300 mb-2">Scope Questions</h3>
+            <ul class="list-decimal ml-6 space-y-2 text-slate-300">
+              <li *ngFor="let q of analysis.clarification_questions?.scope">{{ q }}</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- PHASE 5: ACCEPTANCE CRITERIA -->
+      <div *ngIf="analysis && (analysis.acceptance_criteria?.length ?? 0) > 0" class="bg-slate-800 border border-slate-700 rounded-2xl overflow-hidden">
+        <div class="p-5 cursor-pointer hover:bg-slate-750 transition" (click)="toggleSection('acceptanceCriteria')">
+          <div class="flex justify-between items-center">
+            <h2 class="text-xl font-semibold text-green-400">
+              ✅ Phase 5: Acceptance Criteria
+            </h2>
+            <span class="text-2xl">{{ expandedSections['acceptanceCriteria'] ? '▼' : '▶' }}</span>
+          </div>
+        </div>
+        
+        <div *ngIf="expandedSections['acceptanceCriteria']" class="p-5 pt-0 border-t border-slate-700 space-y-4">
+          <div *ngFor="let ac of analysis.acceptance_criteria; let i = index" class="bg-slate-900 rounded-lg p-4">
+            <h3 class="font-semibold text-green-300 mb-3">AC{{ i + 1 }}: {{ ac.title }}</h3>
+            <div class="space-y-2 text-sm">
+              <div class="flex gap-2">
+                <span class="text-blue-400 font-semibold min-w-[60px]">Given:</span>
+                <span class="text-slate-200">{{ ac.given }}</span>
+              </div>
+              <div class="flex gap-2">
+                <span class="text-yellow-400 font-semibold min-w-[60px]">When:</span>
+                <span class="text-slate-200">{{ ac.when }}</span>
+              </div>
+              <div class="flex gap-2">
+                <span class="text-green-400 font-semibold min-w-[60px]">Then:</span>
+                <span class="text-slate-200">{{ ac.then }}</span>
+              </div>
+              <div *ngIf="(ac.and?.length ?? 0) > 0" class="ml-[68px]">
+                <ul class="list-disc ml-4 space-y-1 text-slate-300">
+                  <li *ngFor="let andClause of ac.and">{{ andClause }}</li>
+                </ul>
+              </div>
+              <div class="mt-3 pt-3 border-t border-slate-700 grid grid-cols-2 gap-2 text-xs">
+                <div><span class="text-slate-400">Verification:</span> <span class="text-slate-300">{{ ac.verification_method }}</span></div>
+                <div><span class="text-slate-400">Test Data:</span> <span class="text-slate-300">{{ ac.test_data_required }}</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PHASE 6: IMPLEMENTATION OPTIONS -->
+      <div *ngIf="analysis && (analysis.implementation_options?.length ?? 0) > 0" class="bg-slate-800 border border-slate-700 rounded-2xl overflow-hidden">
+        <div class="p-5 cursor-pointer hover:bg-slate-750 transition" (click)="toggleSection('implementationOptions')">
+          <div class="flex justify-between items-center">
+            <h2 class="text-xl font-semibold text-indigo-400">
+              💡 Phase 6: Implementation Options
+            </h2>
+            <span class="text-2xl">{{ expandedSections['implementationOptions'] ? '▼' : '▶' }}</span>
+          </div>
+        </div>
+        
+        <div *ngIf="expandedSections['implementationOptions']" class="p-5 pt-0 border-t border-slate-700 space-y-4">
+          <div *ngFor="let option of analysis.implementation_options; let i = index" class="bg-slate-900 rounded-lg p-4">
+            <h3 class="font-semibold text-indigo-300 mb-2">Option {{ i + 1 }}: {{ option.option_name }}</h3>
+            <p class="text-slate-300 mb-3">{{ option.description }}</p>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
+              <div>
+                <p class="text-sm font-semibold text-green-400 mb-1">Pros:</p>
+                <ul class="list-disc ml-5 text-sm text-slate-300 space-y-1">
+                  <li *ngFor="let pro of option.pros">{{ pro }}</li>
+                </ul>
+              </div>
+              <div>
+                <p class="text-sm font-semibold text-red-400 mb-1">Cons:</p>
+                <ul class="list-disc ml-5 text-sm text-slate-300 space-y-1">
+                  <li *ngFor="let con of option.cons">{{ con }}</li>
+                </ul>
+              </div>
+            </div>
+            
+            <div class="flex gap-4 text-xs">
+              <div><span class="text-slate-400">Effort:</span> <span class="text-slate-200 font-medium">{{ option.effort_estimate }}</span></div>
+              <div><span class="text-slate-400">Risk:</span> <span class="text-slate-200 font-medium">{{ option.risk_level }}</span></div>
+            </div>
+          </div>
+          
+          <div *ngIf="analysis.recommendation" class="bg-indigo-900/30 border border-indigo-600 rounded-lg p-4">
+            <p class="text-sm font-semibold text-indigo-300 mb-1">💎 Recommendation:</p>
+            <p class="text-slate-200">{{ analysis.recommendation }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- PHASE 7: USER STORIES -->
+      <div *ngIf="analysis && (analysis.user_stories?.length ?? 0) > 0" class="bg-slate-800 border border-slate-700 rounded-2xl overflow-hidden">
+        <div class="p-5 cursor-pointer hover:bg-slate-750 transition" (click)="toggleSection('userStories')">
+          <div class="flex justify-between items-center">
+            <h2 class="text-xl font-semibold text-pink-400">
+              📖 Phase 7: User Stories Breakdown
+            </h2>
+            <span class="text-2xl">{{ expandedSections['userStories'] ? '▼' : '▶' }}</span>
+          </div>
+        </div>
+        
+        <div *ngIf="expandedSections['userStories']" class="p-5 pt-0 border-t border-slate-700 space-y-4">
+          <div *ngFor="let story of analysis.user_stories; let i = index" class="bg-slate-900 rounded-lg p-4">
+            <div class="flex justify-between items-start mb-3">
+              <h3 class="font-semibold text-pink-300">{{ story.story_id || ('Story #' + (i + 1)) }}: {{ story.title }}</h3>
+              <span class="px-2 py-1 rounded text-xs font-semibold" [ngClass]="{
+                'bg-red-500/20 text-red-300': story.priority?.toLowerCase() === 'high',
+                'bg-yellow-500/20 text-yellow-300': story.priority?.toLowerCase() === 'medium',
+                'bg-green-500/20 text-green-300': story.priority?.toLowerCase() === 'low'
+              }">{{ story.priority }}</span>
+            </div>
+            
+            <div class="space-y-2 text-sm mb-3">
+              <p><span class="text-blue-400">As a</span> <span class="text-slate-200">{{ story.as_a }}</span></p>
+              <p><span class="text-yellow-400">I want</span> <span class="text-slate-200">{{ story.i_want }}</span></p>
+              <p><span class="text-green-400">So that</span> <span class="text-slate-200">{{ story.so_that }}</span></p>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-2 text-xs mb-3">
+              <div><span class="text-slate-400">Type:</span> <span class="text-slate-200">{{ story.story_type }}</span></div>
+              <div><span class="text-slate-400">Effort:</span> <span class="text-slate-200">{{ story.estimated_effort }}</span></div>
+            </div>
+            
+            <div *ngIf="(story.acceptance_criteria?.length ?? 0) > 0" class="mb-3">
+              <p class="text-xs font-semibold text-slate-400 mb-1">Acceptance Criteria:</p>
+              <ul class="list-disc ml-5 text-xs text-slate-300 space-y-1">
+                <li *ngFor="let ac of story.acceptance_criteria">{{ ac }}</li>
+              </ul>
+            </div>
+            
+            <div *ngIf="(story.technical_notes?.length ?? 0) > 0" class="mb-3">
+              <p class="text-xs font-semibold text-slate-400 mb-1">Technical Notes:</p>
+              <ul class="list-disc ml-5 text-xs text-slate-300 space-y-1">
+                <li *ngFor="let note of story.technical_notes">{{ note }}</li>
+              </ul>
+            </div>
+            
+            <div *ngIf="(story.dependencies?.length ?? 0) > 0">
+              <p class="text-xs text-slate-400">Dependencies: <span class="text-slate-300">{{ story.dependencies.join(', ') }}</span></p>
+            </div>
+          </div>
+          
+          <div *ngIf="analysis.epic?.name" class="bg-pink-900/30 border border-pink-600 rounded-lg p-4">
+            <h3 class="font-semibold text-pink-300 mb-2">📌 Epic: {{ analysis.epic.name }}</h3>
+            <p class="text-sm text-slate-300 mb-2">{{ analysis.epic.description }}</p>
+            <p class="text-xs text-slate-400">Business Value: <span class="text-slate-300">{{ analysis.epic.business_value }}</span></p>
+          </div>
+        </div>
+      </div>
+
+      <!-- PHASE 8: TEST CASES -->
+      <div *ngIf="analysis && (analysis.test_cases?.length ?? 0) > 0" class="bg-slate-800 border border-slate-700 rounded-2xl overflow-hidden">
+        <div class="p-5 cursor-pointer hover:bg-slate-750 transition" (click)="toggleSection('testCases')">
+          <div class="flex justify-between items-center">
+            <h2 class="text-xl font-semibold text-teal-400">
+              🧪 Phase 8: Test Cases & Coverage
+            </h2>
+            <span class="text-2xl">{{ expandedSections['testCases'] ? '▼' : '▶' }}</span>
+          </div>
+        </div>
+        
+        <div *ngIf="expandedSections['testCases']" class="p-5 pt-0 border-t border-slate-700 space-y-4">
+          <!-- Test Coverage Summary -->
+          <div *ngIf="analysis.test_coverage_summary" class="bg-teal-900/30 border border-teal-600 rounded-lg p-4">
+            <h3 class="font-semibold text-teal-300 mb-3">📊 Test Coverage Summary</h3>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+              <div class="text-center">
+                <p class="text-2xl font-bold text-white">{{ analysis.test_coverage_summary.total_test_cases }}</p>
+                <p class="text-xs text-slate-400">Total Tests</p>
+              </div>
+              <div class="text-center">
+                <p class="text-2xl font-bold text-blue-400">{{ analysis.test_coverage_summary.unit_tests }}</p>
+                <p class="text-xs text-slate-400">Unit</p>
+              </div>
+              <div class="text-center">
+                <p class="text-2xl font-bold text-purple-400">{{ analysis.test_coverage_summary.integration_tests }}</p>
+                <p class="text-xs text-slate-400">Integration</p>
+              </div>
+              <div class="text-center">
+                <p class="text-2xl font-bold text-green-400">{{ analysis.test_coverage_summary.automated }}</p>
+                <p class="text-xs text-slate-400">Automated</p>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Individual Test Cases -->
+          <div *ngFor="let test of analysis.test_cases; let i = index" class="bg-slate-900 rounded-lg p-4">
+            <div class="flex justify-between items-start mb-2">
+              <h3 class="font-semibold text-teal-300">{{ test.test_id }}: {{ test.title }}</h3>
+              <span class="px-2 py-1 rounded text-xs" [ngClass]="{
+                'bg-green-500/20 text-green-300': test.automated?.toLowerCase() === 'yes',
+                'bg-gray-500/20 text-gray-300': test.automated?.toLowerCase() === 'no'
+              }">{{ test.automated === 'yes' ? '🤖 Automated' : '👤 Manual' }}</span>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-2 mb-3 text-xs">
+              <div><span class="text-slate-400">Type:</span> <span class="text-slate-200">{{ test.test_type }}</span></div>
+              <div><span class="text-slate-400">Priority:</span> <span class="text-slate-200">{{ test.priority }}</span></div>
+            </div>
+            
+            <div *ngIf="(test.preconditions?.length ?? 0) > 0" class="mb-2">
+              <p class="text-xs font-semibold text-slate-400 mb-1">Preconditions:</p>
+              <ul class="list-disc ml-5 text-xs text-slate-300 space-y-1">
+                <li *ngFor="let pre of test.preconditions">{{ pre }}</li>
+              </ul>
+            </div>
+            
+            <div *ngIf="(test.test_steps?.length ?? 0) > 0" class="mb-2">
+              <p class="text-xs font-semibold text-slate-400 mb-1">Test Steps:</p>
+              <ol class="list-decimal ml-5 text-xs text-slate-300 space-y-1">
+                <li *ngFor="let step of test.test_steps">{{ step }}</li>
+              </ol>
+            </div>
+            
+            <div *ngIf="test.expected_result" class="bg-slate-800 rounded p-2 text-xs">
+              <span class="text-slate-400">Expected Result:</span> <span class="text-slate-200">{{ test.expected_result }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- DEPENDENCIES & RISKS -->
+      <div *ngIf="analysis && analysis.dependencies_and_risks" class="bg-slate-800 border border-slate-700 rounded-2xl overflow-hidden">
+        <div class="p-5 cursor-pointer hover:bg-slate-750 transition" (click)="toggleSection('dependencies')">
+          <div class="flex justify-between items-center">
+            <h2 class="text-xl font-semibold text-orange-400">
+              🔗 Dependencies & Risks
+            </h2>
+            <span class="text-2xl">{{ expandedSections['dependencies'] ? '▼' : '▶' }}</span>
+          </div>
+        </div>
+        
+        <div *ngIf="expandedSections['dependencies']" class="p-5 pt-0 border-t border-slate-700 space-y-4">
+          <div *ngIf="(analysis.dependencies_and_risks?.dependencies?.length ?? 0) > 0">
+            <h3 class="font-semibold text-orange-300 mb-2">Dependencies:</h3>
+            <ul class="list-disc ml-6 space-y-1 text-slate-300">
+              <li *ngFor="let dep of analysis.dependencies_and_risks?.dependencies">{{ dep }}</li>
+            </ul>
+          </div>
+          
+          <div *ngIf="(analysis.dependencies_and_risks?.risks?.length ?? 0) > 0">
+            <h3 class="font-semibold text-red-300 mb-2">Risks & Mitigation:</h3>
+            <div class="space-y-2">
+              <div *ngFor="let risk of analysis.dependencies_and_risks?.risks" class="bg-slate-900 rounded p-3">
+                <p class="text-sm text-red-400 font-medium mb-1">⚠️ {{ risk.risk }}</p>
+                <p class="text-xs text-slate-300"><span class="text-slate-400">Mitigation:</span> {{ risk.mitigation }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- EFFORT ESTIMATION -->
+      <div *ngIf="analysis && analysis.effort_estimation" class="bg-slate-800 border border-slate-700 rounded-2xl overflow-hidden">
+        <div class="p-5 cursor-pointer hover:bg-slate-750 transition" (click)="toggleSection('effort')">
+          <div class="flex justify-between items-center">
+            <h2 class="text-xl font-semibold text-amber-400">
+              ⏱️ Effort Estimation
+            </h2>
+            <span class="text-2xl">{{ expandedSections['effort'] ? '▼' : '▶' }}</span>
+          </div>
+        </div>
+        
+        <div *ngIf="expandedSections['effort']" class="p-5 pt-0 border-t border-slate-700 space-y-4">
+          <div class="bg-amber-900/30 border border-amber-600 rounded-lg p-4">
+            <p class="text-lg font-semibold text-amber-300 mb-3">
+              Total Estimated Effort: <span class="text-white">{{ analysis.effort_estimation.total_estimated_effort }}</span>
+            </p>
+            
+            <div *ngIf="analysis.effort_estimation.breakdown" class="grid grid-cols-3 gap-4 mb-3">
+              <div class="text-center">
+                <p class="text-2xl font-bold text-blue-400">{{ analysis.effort_estimation.breakdown.development }}</p>
+                <p class="text-xs text-slate-400">Development</p>
+              </div>
+              <div class="text-center">
+                <p class="text-2xl font-bold text-green-400">{{ analysis.effort_estimation.breakdown.testing }}</p>
+                <p class="text-xs text-slate-400">Testing</p>
+              </div>
+              <div class="text-center">
+                <p class="text-2xl font-bold text-purple-400">{{ analysis.effort_estimation.breakdown.documentation }}</p>
+                <p class="text-xs text-slate-400">Documentation</p>
+              </div>
+            </div>
+            
+            <div *ngIf="analysis.effort_estimation.suggested_sprint_allocation">
+              <p class="text-sm text-slate-300">
+                <span class="text-slate-400">Suggested Sprint Allocation:</span> 
+                <span class="font-semibold">{{ analysis.effort_estimation.suggested_sprint_allocation }}</span>
+              </p>
+            </div>
+          </div>
+          
+          <div *ngIf="(analysis.next_steps?.length ?? 0) > 0">
+            <h3 class="font-semibold text-amber-300 mb-2">📋 Next Steps:</h3>
+            <ol class="list-decimal ml-6 space-y-1 text-slate-300">
+              <li *ngFor="let step of analysis.next_steps">{{ step }}</li>
+            </ol>
+          </div>
+        </div>
+      </div>
+
+      <!-- REFINE FOLLOW-UP -->
+      <div *ngIf="analysis" class="bg-slate-800 border border-slate-700 rounded-2xl p-5 shadow-xl">
+        <h2 class="text-xl font-semibold mb-4 text-cyan-400">
+          ✨ Further Refinement
+        </h2>
+        <p class="text-slate-400 text-sm mb-3">
+          Need to refine specific sections or add more details? Provide your instructions below:
+        </p>
+        
+        <textarea
+          [(ngModel)]="instruction"
+          rows="3"
+          placeholder="E.g., 'Add more edge cases for payment failure scenarios' or 'Expand the security requirements'"
+          class="w-full bg-slate-900 border border-slate-600 rounded-xl p-4 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500 mb-3">
+        </textarea>
+
+        <button
+          (click)="refineFurther()"
+          [disabled]="!instruction.trim() || loading"
+          class="bg-cyan-600 hover:bg-cyan-700 disabled:bg-slate-600 disabled:cursor-not-allowed px-6 py-2 rounded-xl font-semibold transition">
+          🔄 Apply Refinement
+        </button>
+      </div>
+  
+      <!-- DOWNLOAD BAR -->
+      <div *ngIf="analysis"
+           class="sticky bottom-4 bg-slate-800 border border-slate-700 rounded-2xl p-4 flex flex-wrap gap-3 justify-center shadow-2xl">
+  
+        <button (click)="downloadWord()" class="download-btn bg-purple-600 hover:bg-purple-700">
+          📄 Download Word Report
+        </button>
+  
+        <button (click)="downloadPdf()" class="download-btn bg-red-600 hover:bg-red-700">
+          📑 Download PDF Report
+        </button>
+      </div>
+  
+    </div>
+
+    <!-- INFO MODAL -->
+    <div *ngIf="showModal" 
+         class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+         (click)="closeModal()">
+      <div class="bg-slate-800 border-2 border-blue-500 rounded-2xl p-6 max-w-md mx-4 shadow-2xl"
+           (click)="$event.stopPropagation()">
+        <div class="flex items-start gap-4">
+          <div class="text-4xl">ℹ️</div>
+          <div class="flex-1">
+            <h3 class="text-xl font-bold text-blue-400 mb-2">Input Validation</h3>
+            <p class="text-slate-300 leading-relaxed">{{ modalMessage }}</p>
+            <p class="text-slate-400 text-sm mt-3">
+              Please provide a clear feature request, bug report, or technical requirement.
+            </p>
+          </div>
+        </div>
+        <div class="mt-6 flex justify-end">
+          <button (click)="closeModal()" 
+                  class="bg-blue-600 hover:bg-blue-700 px-6 py-2 rounded-xl font-semibold transition">
+            Got it
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ERROR MODAL -->
+    <div *ngIf="showErrorModal" 
+         class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+         (click)="closeErrorModal()">
+      <div class="bg-slate-800 border-2 border-red-500 rounded-2xl p-6 max-w-md mx-4 shadow-2xl"
+           (click)="$event.stopPropagation()">
+        <div class="flex items-start gap-4">
+          <div class="text-4xl">❌</div>
+          <div class="flex-1">
+            <h3 class="text-xl font-bold text-red-400 mb-2">Something Went Wrong</h3>
+            <p class="text-slate-300 leading-relaxed">{{ errorMessage }}</p>
+            <p class="text-slate-400 text-sm mt-3">
+              Please try again, or contact support if the issue persists.
+            </p>
+          </div>
+        </div>
+        <div class="mt-6 flex justify-end gap-3">
+          <button (click)="closeErrorModal()" 
+                  class="bg-red-600 hover:bg-red-700 px-6 py-2 rounded-xl font-semibold transition">
+            Try Again
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
